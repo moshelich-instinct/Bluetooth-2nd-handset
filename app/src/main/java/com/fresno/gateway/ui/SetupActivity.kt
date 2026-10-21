@@ -5,6 +5,7 @@ import android.app.role.RoleManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.net.Uri
 import android.os.Bundle
 import android.os.PowerManager
@@ -57,8 +58,7 @@ class SetupActivity : AppCompatActivity() {
     }
 
     private fun stepDone(s: Int): Boolean = when (s) {
-        0 -> granted(Manifest.permission.BLUETOOTH_CONNECT) &&
-            granted(Manifest.permission.BLUETOOTH_SCAN)
+        0 -> bluetoothPermissionsGranted()
         1 -> granted(Manifest.permission.CALL_PHONE) &&
             granted(Manifest.permission.READ_PHONE_STATE)
         2 -> isDefaultDialer()
@@ -67,6 +67,12 @@ class SetupActivity : AppCompatActivity() {
             .isIgnoringBatteryOptimizations(packageName)
         else -> false
     }
+
+    /** BLUETOOTH_CONNECT/SCAN only exist as runtime permissions on API 31+. */
+    private fun bluetoothPermissionsGranted(): Boolean =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+            (granted(Manifest.permission.BLUETOOTH_CONNECT) &&
+                granted(Manifest.permission.BLUETOOTH_SCAN))
 
     private fun granted(perm: String) =
         ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_GRANTED
@@ -117,15 +123,22 @@ class SetupActivity : AppCompatActivity() {
 
     private fun runStep() {
         when (step) {
-            0 -> ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    Manifest.permission.BLUETOOTH_CONNECT,
-                    Manifest.permission.BLUETOOTH_SCAN,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ),
-                REQ_BT
-            )
+            0 -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val perms = mutableListOf(
+                        Manifest.permission.BLUETOOTH_CONNECT,
+                        Manifest.permission.BLUETOOTH_SCAN
+                    )
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        perms.add(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                    ActivityCompat.requestPermissions(this, perms.toTypedArray(), REQ_BT)
+                } else {
+                    // Pre-Android 12: Bluetooth permissions are install-time
+                    // (legacy BLUETOOTH/BLUETOOTH_ADMIN in the manifest).
+                    nextStep()
+                }
+            }
             1 -> ActivityCompat.requestPermissions(
                 this,
                 arrayOf(
