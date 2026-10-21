@@ -11,6 +11,7 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.fresno.gateway.R
 import com.fresno.gateway.hfp.HfpGatewayService
 import com.fresno.gateway.hfp.RemoteCallState
@@ -106,10 +107,11 @@ class IncomingCallActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (!isLocalCall) {
-            registerReceiver(
+            ContextCompat.registerReceiver(
+                this,
                 statusReceiver,
                 IntentFilter(HfpGatewayService.ACTION_STATUS_UPDATE),
-                RECEIVER_NOT_EXPORTED
+                ContextCompat.RECEIVER_NOT_EXPORTED
             )
             HfpGatewayService.command(this, HfpGatewayService.ACTION_QUERY_STATUS)
         }
