@@ -30,7 +30,9 @@ android {
             signingConfig = signingConfigs.getByName("release")
         }
         debug {
-            signingConfig = signingConfigs.getByName("release")
+            // Use the default throwaway debug keystore for local/CI test
+            // builds. The committed release keystore is only for release
+            // builds made deliberately on a maintainer machine.
         }
     }
 
