@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.fresno.gateway"
-        minSdk = 31
+        minSdk = 30
         targetSdk = 34
         versionCode = 3
         versionName = "1.0.2"
