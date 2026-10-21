@@ -23,6 +23,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.fresno.gateway.GatewayApp
 import com.fresno.gateway.R
 import com.fresno.gateway.ui.IncomingCallActivity
@@ -92,7 +93,7 @@ class HfpGatewayService : Service(), HfpAtEngine.Listener {
             addAction(NativeHfpClient.ACTION_AUDIO_STATE_CHANGED)
             addAction(NativeHfpClient.ACTION_CALL_CHANGED)
         }
-        registerReceiver(nativeReceiver, filter, RECEIVER_EXPORTED)
+        ContextCompat.registerReceiver(this, nativeReceiver, filter, ContextCompat.RECEIVER_EXPORTED)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
