@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.widget.ArrayAdapter
@@ -42,8 +43,11 @@ class DevicePickerActivity : AppCompatActivity() {
         list = findViewById(R.id.device_list)
         val empty = findViewById<TextView>(R.id.empty_text)
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
-            != PackageManager.PERMISSION_GRANTED
+        // BLUETOOTH_CONNECT is a runtime permission only on API 31+; below
+        // that the legacy manifest permissions cover it.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                != PackageManager.PERMISSION_GRANTED
         ) {
             empty.text = "Bluetooth permission missing.\nRun Setup wizard first."
             return
